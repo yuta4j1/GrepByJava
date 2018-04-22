@@ -108,7 +108,7 @@ public class GrepExecutor {
             try (BufferedReader reader = Files.newBufferedReader(grepTargetPath, StandardCharsets.UTF_8)) {
                 while ((line = reader.readLine()) != null) {
                     /* 正規表現に一致する場合 */
-                    if (pattern.matcher(line).matches()) {
+                    if (pattern.matcher(line).find()) {
                         System.out.println(grepTargetPath);
                         break;
                     }
