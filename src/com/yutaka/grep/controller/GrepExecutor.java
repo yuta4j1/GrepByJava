@@ -22,6 +22,7 @@ public class GrepExecutor {
     private static final String DEFAULT_OPTION = "a";
     private static final String GREP_NON_MATCH = "v";
     private static final String GREP_BY_REGEXP = "e";
+    private static final String GREP_WITH_LINE = "n";
     private static final int QUEUE_MAX_CAPACITY = 5;
 
     public void excecutor(Arguments argModel) {
@@ -39,7 +40,8 @@ public class GrepExecutor {
             case GREP_NON_MATCH:
                 grepNonMatch(argModel.getAbsolutePath(), argModel.getSearchTarget());
                 break;
-            case "n":
+            case GREP_WITH_LINE:
+                grepByKeywordWithLine(argModel.getAbsolutePath(), argModel.getSearchTarget());
                 break;
             default:
                 grepByKeyword(argModel.getAbsolutePath(), argModel.getSearchTarget());
@@ -156,19 +158,33 @@ public class GrepExecutor {
         List<Path> grepTargetPaths = FileUtil.getUnderParentPaths(dir, ".txt");
         String line = null;
         int lineNum = 0;
-        Map<Integer, String> rowMap = new LinkedHashMap<>();
+        boolean first = true;
+        // サイズ5のFIFOキャッシュ
+        Map<Integer, String> rowCache = new LinkedHashMap<Integer, String>(QUEUE_MAX_CAPACITY) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<Integer, String> eldest){
+                return size() > QUEUE_MAX_CAPACITY;
+            }
+        };
         for (Path grepTargetPath : grepTargetPaths) {
             try (BufferedReader reader = Files.newBufferedReader(grepTargetPath, StandardCharsets.UTF_8)) {
                 while ((line = reader.readLine()) != null) {
                     lineNum++;
-                    if (rowMap.size() == QUEUE_MAX_CAPACITY) {
-                        //TODO LinkedLHashMapをFIFOキャッシュとした実装にする。
-                    }
+                    rowCache.put(lineNum, line);
+                    // 一番最初に検索したキーワードより手前５行を出力する。
                     if (line.contains(keyword)) {
-                        System.out.println(grepTargetPath.toString());
+                        // System.out.println(grepTargetPath.toString());
+                        if(!first)System.out.println("-----------------");
+                        if(first)first = false;
                         break;
                     }
                 }
+
+                System.out.println(grepTargetPath);
+                rowCache.entrySet().stream().map(e -> e.getKey() + ". " + e.getValue()).forEach(System.out::println);
+                // 行キャッシュのリセット
+                lineNum = 0;
+                rowCache.clear();
             }
         }
     }
