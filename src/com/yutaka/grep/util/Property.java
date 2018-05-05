@@ -14,7 +14,7 @@ import java.util.Properties;
  */
 public class Property {
 
-    private static Properties properties;
+    private static Properties properties = new Properties();
 
     /**
      * Propertiesオブジェクトを取得する。
@@ -24,10 +24,10 @@ public class Property {
      * @return
      */
     public static Properties getProperties() {
-        if(properties != null){
-            return properties;
-        }
-         Path path = Paths.get("/resources/app.properties");
+//        if(properties != null){
+//            return properties;
+//        }
+         Path path = Paths.get("resources/app.properties");
          try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
              properties.load(reader);
 

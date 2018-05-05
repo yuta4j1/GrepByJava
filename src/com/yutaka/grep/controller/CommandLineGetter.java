@@ -16,14 +16,14 @@ public class CommandLineGetter {
     /**
      * 引数を取得し、オブジェクトに格納するメソッド。
      *
-     * @param args
+     * @param args コマンドライン引数
      * @return
      */
     public static Arguments getArguments(String[] args) {
         /* 第一引数と第二引数が入力されない場合の処理。 */
         String[] reAcquisitionArgs = null;
         /* 必須である第一引数と第二引数が取得されない場合、処理を繰り返す。 */
-        while(args.length <= 1){
+        while (args.length <= 1) {
             reAcquisitionArgs = reGetArguments();
             args = reAcquisitionArgs;
         }
@@ -39,10 +39,15 @@ public class CommandLineGetter {
 
     }
 
+    /**
+     * コマンドライン引数の取得失敗時の再取得処理。
+     *
+     * @return
+     */
     public static String[] reGetArguments() {
         System.out.println("Please enter first argumentand second argument.");
         String args[] = null;
-        try(Scanner sc = new Scanner(System.in)){
+        try (Scanner sc = new Scanner(System.in)) {
             args = sc.nextLine().split(" ");
         } catch (NoSuchElementException e) {
             e.printStackTrace();
